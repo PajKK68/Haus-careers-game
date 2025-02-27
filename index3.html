@@ -39,7 +39,8 @@
             background: #5b0000;
         }
         img {
-            max-width: 100%;
+            max-width: 80%;  /* ปรับขนาดรูปให้พอดีกับหน้าจอ */
+            height: auto;    /* รักษาสัดส่วนของรูป */
             border-radius: 10px;
             margin-bottom: 20px;
         }
@@ -54,7 +55,7 @@
             padding: 40px 20px;
         }
         .intro-container img {
-            max-width: 80%;
+            max-width: 80%;  /* ปรับขนาดรูปในหน้าแรกให้พอดีกับหน้าจอ */
             margin-bottom: 30px;
         }
     </style>
@@ -72,10 +73,16 @@
     <div class="container" id="question-page" style="display: none;">
         <img id="question-image" src="" alt="Question Image">
         <h1 id="question">Loading...</h1>
-        <button class="choice-btn" onclick="nextQuestion(0)">Choice 1</button>
-        <button class="choice-btn" onclick="nextQuestion(1)">Choice 2</button>
-        <button class="choice-btn" onclick="nextQuestion(2)">Choice 3</button>
+        <div id="choices"></div> <!-- เปลี่ยนเป็น div สำหรับแสดงตัวเลือก -->
         <div class="skills-box" id="skills"></div>
+    </div>
+
+    <!-- ผลลัพธ์ -->
+    <div class="container" id="result-page" style="display: none;">
+        <img id="result-image" src="" alt="Result Image">
+        <h1 id="career-result">Loading...</h1>
+        <div id="result-skills"></div>
+        <button class="choice-btn" onclick="restartTest()">เล่นอีกรอบ</button>
     </div>
 
     <script>
@@ -83,31 +90,31 @@
             { 
                 text: "คุณชอบทำงานกับข้อมูลและตัวเลขหรือไม่?", 
                 image: "job_suugakusya.png", 
-                choices: ["ชอบมาก", "ปานกลาง", "ไม่ชอบ"],
-                results: [3, 2, 1]  // คะแนนสำหรับแต่ละตัวเลือก
+                choices: ["มาก", "กลางๆ", "ไม่เลย"],
+                results: [3, 2, 1]
             },
             { 
                 text: "คุณชอบการออกแบบและศิลปะหรือไม่?", 
-                image: "image2.jpg", 
-                choices: ["มาก", "พอใช้", "ไม่นิยม"],
+                image: "mangaka_man.png",
+                choices: ["มาก", "กลางๆ", "ไม่เลย"],
                 results: [3, 2, 1]
             },
             { 
                 text: "คุณสนใจเทคโนโลยีและการเขียนโปรแกรมหรือไม่?", 
-                image: "image3.jpg", 
-                choices: ["ใช่", "นิดหน่อย", "ไม่เลย"],
+                image: "computer_programming_man.png",
+                choices: ["มาก", "กลางๆ", "ไม่เลย"],
                 results: [3, 2, 1]
             },
             { 
                 text: "คุณถนัดการสื่อสารและการพูดในที่สาธารณะหรือไม่?", 
-                image: "image4.jpg", 
-                choices: ["มาก", "ปานกลาง", "ไม่ค่อย"],
+                image: "job_reporter_woman_smile.png",
+                choices: ["มาก", "กลางๆ", "ไม่เลย"],
                 results: [3, 2, 1]
             },
             { 
                 text: "คุณสนใจงานที่เกี่ยวกับการตลาดและการวิเคราะห์พฤติกรรมผู้บริโภคหรือไม่?", 
-                image: "image5.jpg", 
-                choices: ["ใช่", "บ้าง", "ไม่สนใจ"],
+                image: "gourmet_writer_man.png",
+                choices: ["มาก", "กลางๆ", "ไม่เลย"],
                 results: [3, 2, 1]
             }
         ];
@@ -116,14 +123,12 @@
         let totalScore = 0;  // คะแนนรวม
 
         function startTest() {
-            // ซ่อนหน้าแรกและแสดงหน้าเกมคำถาม
             document.getElementById("intro-page").style.display = "none";
             document.getElementById("question-page").style.display = "block";
             updateQuestion();
         }
 
         function nextQuestion(choiceIndex) {
-            // เพิ่มคะแนนจากตัวเลือกที่เลือก
             totalScore += questions[currentQuestion].results[choiceIndex];
 
             if (currentQuestion < questions.length - 1) {
@@ -137,14 +142,20 @@
         function updateQuestion() {
             document.getElementById("question").innerText = questions[currentQuestion].text;
             document.getElementById("question-image").src = questions[currentQuestion].image;
-            const buttons = document.getElementsByClassName("choice-btn");
-            for (let i = 0; i < buttons.length; i++) {
-                buttons[i].innerText = questions[currentQuestion].choices[i];
+            const choicesDiv = document.getElementById("choices");
+
+            choicesDiv.innerHTML = '';
+
+            for (let i = 0; i < questions[currentQuestion].choices.length; i++) {
+                const button = document.createElement('button');
+                button.classList.add('choice-btn');
+                button.innerText = questions[currentQuestion].choices[i];
+                button.onclick = () => nextQuestion(i);
+                choicesDiv.appendChild(button);
             }
         }
 
         function showResult() {
-            // แสดงผลลัพธ์ตามคะแนน
             let career = "";
             let skills = "";
 
@@ -159,10 +170,18 @@
                 skills = "<strong>ทักษะที่ควรมี:</strong> การเขียนโปรแกรม, การแก้ปัญหา, ความสามารถในการคิดเชิงตรรกะ";
             }
 
-            document.getElementById("question").innerText = career;
-            document.getElementById("question-image").src = "career.jpg";
-            document.querySelectorAll(".choice-btn").forEach(btn => btn.style.display = "none");
-            document.getElementById("skills").innerHTML = skills;
+            document.getElementById("career-result").innerText = career;
+            document.getElementById("result-image").src = "channels4_profile (1).jpg";
+            document.getElementById("result-skills").innerHTML = skills;
+            document.getElementById("question-page").style.display = "none";
+            document.getElementById("result-page").style.display = "block";
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            totalScore = 0;
+            document.getElementById("result-page").style.display = "none";
+            document.getElementById("intro-page").style.display = "block";
         }
     </script>
 </body>
