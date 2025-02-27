@@ -1,72 +1,170 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เกมแนะแนวอาชีพ</title>
+    <title>Career Choice Game</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Sarabun', sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #FF0000, #d3d3d3); /* เปลี่ยนสีพื้นหลัง */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .choice-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 18px;
+            border: none;
+            background: #800000; /* ปุ่มสีแดงเลือดหมู */
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .choice-btn:hover {
+            background: #5b0000;
+        }
+        img {
+            max-width: 80%;  /* ปรับขนาดรูปให้พอดีกับหน้าจอ */
+            height: auto;    /* รักษาสัดส่วนของรูป */
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .skills-box {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f8f8;
+            border-radius: 5px;
+        }
+        .intro-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .intro-container img {
+            max-width: 80%;  /* ปรับขนาดรูปในหน้าแรกให้พอดีกับหน้าจอ */
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>ค้นหาอาชีพที่เหมาะกับคุณ</h1>
-    <p id="question">คุณชอบทำงานกับ?</p>
-    
-    <button onclick="choose('people')">คน</button>
-    <button onclick="choose('data')">ข้อมูล</button>
+    <!-- หน้าแรก -->
+    <div class="intro-container" id="intro-page">
+        <img src="channels4_profile (1).jpg" alt="Career Image">
+        <h1>ค้นหาอาชีพที่เหมาะกับเรา</h1>
+        <button class="choice-btn" onclick="startTest()">เริ่มทดสอบกันเลย!</button>
+    </div>
+
+    <!-- คำถาม -->
+    <div class="container" id="question-page" style="display: none;">
+        <img id="question-image" src="" alt="Question Image">
+        <h1 id="question">Loading...</h1>
+        <button class="choice-btn" onclick="nextQuestion(0)">Choice 1</button>
+        <button class="choice-btn" onclick="nextQuestion(1)">Choice 2</button>
+        <button class="choice-btn" onclick="nextQuestion(2)">Choice 3</button>
+        <div class="skills-box" id="skills"></div>
+    </div>
 
     <script>
-        let answers = [];
+        const questions = [
+            { 
+                text: "คุณชอบทำงานกับข้อมูลและตัวเลขหรือไม่?", 
+                image: "job_suugakusya.png", 
+                choices: ["ชอบมาก", "ปานกลาง", "ไม่ชอบ"],
+                results: [3, 2, 1]  // คะแนนสำหรับแต่ละตัวเลือก
+            },
+            { 
+                text: "คุณชอบการออกแบบและศิลปะหรือไม่?", 
+                image: "image2.jpg", 
+                choices: ["มาก", "พอใช้", "ไม่นิยม"],
+                results: [3, 2, 1]
+            },
+            { 
+                text: "คุณสนใจเทคโนโลยีและการเขียนโปรแกรมหรือไม่?", 
+                image: "image3.jpg", 
+                choices: ["ใช่", "นิดหน่อย", "ไม่เลย"],
+                results: [3, 2, 1]
+            },
+            { 
+                text: "คุณถนัดการสื่อสารและการพูดในที่สาธารณะหรือไม่?", 
+                image: "image4.jpg", 
+                choices: ["มาก", "ปานกลาง", "ไม่ค่อย"],
+                results: [3, 2, 1]
+            },
+            { 
+                text: "คุณสนใจงานที่เกี่ยวกับการตลาดและการวิเคราะห์พฤติกรรมผู้บริโภคหรือไม่?", 
+                image: "image5.jpg", 
+                choices: ["ใช่", "บ้าง", "ไม่สนใจ"],
+                results: [3, 2, 1]
+            }
+        ];
 
-        function choose(option) {
-            answers.push(option);
+        let currentQuestion = 0;
+        let totalScore = 0;  // คะแนนรวม
 
-            if (answers.length === 1) {
-                document.getElementById("question").innerText = "คุณสนใจเรื่องเทคโนโลยีไหม?";
-                document.querySelectorAll("button")[0].innerText = "ใช่";
-                document.querySelectorAll("button")[1].innerText = "ไม่";
-            } 
-            else if (answers.length === 2) {
+        function startTest() {
+            // ซ่อนหน้าแรกและแสดงหน้าเกมคำถาม
+            document.getElementById("intro-page").style.display = "none";
+            document.getElementById("question-page").style.display = "block";
+            updateQuestion();
+        }
+
+        function nextQuestion(choiceIndex) {
+            // เพิ่มคะแนนจากตัวเลือกที่เลือก
+            totalScore += questions[currentQuestion].results[choiceIndex];
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                updateQuestion();
+            } else {
                 showResult();
             }
         }
 
+        function updateQuestion() {
+            document.getElementById("question").innerText = questions[currentQuestion].text;
+            document.getElementById("question-image").src = questions[currentQuestion].image;
+            const buttons = document.getElementsByClassName("choice-btn");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].innerText = questions[currentQuestion].choices[i];
+            }
+        }
+
         function showResult() {
+            // แสดงผลลัพธ์ตามคะแนน
             let career = "";
             let skills = "";
-            let course = "";
 
-            if (answers[0] === "people" && answers[1] === "ใช่") {
-                career = "Digital Marketer";
-                skills = "SEO, Social Media, Data Analytics";
-                course = "หลักสูตรการตลาดดิจิทัลโดย JOBBKK";
-            } 
-            else if (answers[0] === "data" && answers[1] === "ใช่") {
-                career = "Data Analyst";
-                skills = "SQL, Python, Data Visualization";
-                course = "การวิเคราะห์ข้อมูลเบื้องต้น";
-            } 
-            else {
-                career = "นักเขียนคอนเทนต์";
-                skills = "Copywriting, Storytelling, Branding";
-                course = "เขียนคอนเทนต์ให้ปังโดย JOBBKK";
+            if (totalScore >= 12) {
+                career = "คุณเหมาะกับอาชีพ... Digital Marketer!";
+                skills = "<strong>ทักษะที่ควรมี:</strong> การวิเคราะห์ข้อมูล, การเขียนเนื้อหา, การใช้เครื่องมือโฆษณาออนไลน์";
+            } else if (totalScore >= 8) {
+                career = "คุณเหมาะกับอาชีพ... นักออกแบบกราฟิก!";
+                skills = "<strong>ทักษะที่ควรมี:</strong> การออกแบบ, การใช้โปรแกรมกราฟิก, ความคิดสร้างสรรค์";
+            } else {
+                career = "คุณเหมาะกับอาชีพ... นักพัฒนาโปรแกรม!";
+                skills = "<strong>ทักษะที่ควรมี:</strong> การเขียนโปรแกรม, การแก้ปัญหา, ความสามารถในการคิดเชิงตรรกะ";
             }
 
-            document.body.innerHTML = `
-                <h1>ผลลัพธ์ของคุณ</h1>
-                <p><b>อาชีพที่เหมาะกับคุณ:</b> ${career}</p>
-                <p><b>ทักษะที่จำเป็น:</b> ${skills}</p>
-                <p><b>คอร์สที่แนะนำ:</b> ${course}</p>
-                <button onclick="restart()">ลองใหม่</button>
-            `;
-        }
-
-        function restart() {
-            location.reload();
+            document.getElementById("question").innerText = career;
+            document.getElementById("question-image").src = "career.jpg";
+            document.querySelectorAll(".choice-btn").forEach(btn => btn.style.display = "none");
+            document.getElementById("skills").innerHTML = skills;
         }
     </script>
-
 </body>
 </html>
