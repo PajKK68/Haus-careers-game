@@ -10,7 +10,7 @@
         body {
             font-family: 'Sarabun', sans-serif;
             text-align: center;
-            background: linear-gradient(to bottom, #800000, #ffffff);
+            background: linear-gradient(to bottom, #FF0000, #d3d3d3); /* เปลี่ยนสีพื้นหลัง */
             color: #333;
             margin: 0;
             padding: 0;
@@ -30,13 +30,13 @@
             margin: 10px 0;
             font-size: 18px;
             border: none;
-            background: #007BFF;
+            background: #800000; /* ปุ่มสีแดงเลือดหมู */
             color: white;
             cursor: pointer;
             border-radius: 5px;
         }
         .choice-btn:hover {
-            background: #0056b3;
+            background: #5b0000;
         }
         img {
             max-width: 100%;
@@ -49,10 +49,27 @@
             background: #f8f8f8;
             border-radius: 5px;
         }
+        .intro-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .intro-container img {
+            max-width: 80%;
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <!-- หน้าแรก -->
+    <div class="intro-container" id="intro-page">
+        <img src="career_intro_image.jpg" alt="Career Image">
+        <h1>ค้นหาอาชีพที่เหมาะกับเรา</h1>
+        <button class="choice-btn" onclick="startTest()">เริ่มทดสอบกันเลย!</button>
+    </div>
+
+    <!-- คำถาม -->
+    <div class="container" id="question-page" style="display: none;">
         <img id="question-image" src="" alt="Question Image">
         <h1 id="question">Loading...</h1>
         <button class="choice-btn" onclick="nextQuestion(0)">Choice 1</button>
@@ -65,7 +82,7 @@
         const questions = [
             { 
                 text: "คุณชอบทำงานกับข้อมูลและตัวเลขหรือไม่?", 
-                image: "WeTV_Logo.jpg", 
+                image: "channels4_profile (1).jpg", 
                 choices: ["ชอบมาก", "ปานกลาง", "ไม่ชอบ"],
                 results: [3, 2, 1]  // คะแนนสำหรับแต่ละตัวเลือก
             },
@@ -94,9 +111,16 @@
                 results: [3, 2, 1]
             }
         ];
-        
+
         let currentQuestion = 0;
         let totalScore = 0;  // คะแนนรวม
+
+        function startTest() {
+            // ซ่อนหน้าแรกและแสดงหน้าเกมคำถาม
+            document.getElementById("intro-page").style.display = "none";
+            document.getElementById("question-page").style.display = "block";
+            updateQuestion();
+        }
 
         function nextQuestion(choiceIndex) {
             // เพิ่มคะแนนจากตัวเลือกที่เลือก
@@ -137,11 +161,9 @@
 
             document.getElementById("question").innerText = career;
             document.getElementById("question-image").src = "career.jpg";
-            document.querySelector(".choice-btn").style.display = "none";
+            document.querySelectorAll(".choice-btn").forEach(btn => btn.style.display = "none");
             document.getElementById("skills").innerHTML = skills;
         }
-
-        updateQuestion();
     </script>
 </body>
 </html>
