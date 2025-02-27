@@ -73,9 +73,7 @@
     <div class="container" id="question-page" style="display: none;">
         <img id="question-image" src="" alt="Question Image">
         <h1 id="question">Loading...</h1>
-        <button class="choice-btn" onclick="nextQuestion(0)">Choice 1</button>
-        <button class="choice-btn" onclick="nextQuestion(1)">Choice 2</button>
-        <button class="choice-btn" onclick="nextQuestion(2)">Choice 3</button>
+        <div id="choices"></div> <!-- เปลี่ยนเป็น div สำหรับแสดงตัวเลือก -->
         <div class="skills-box" id="skills"></div>
     </div>
 
@@ -138,11 +136,18 @@
         function updateQuestion() {
             document.getElementById("question").innerText = questions[currentQuestion].text;
             document.getElementById("question-image").src = questions[currentQuestion].image;
-            const buttons = document.getElementsByClassName("choice-btn");
-            
-            // ลูปอัพเดตตัวเลือกในปุ่ม
+            const choicesDiv = document.getElementById("choices");
+
+            // เคลียร์ตัวเลือกเก่า
+            choicesDiv.innerHTML = '';
+
+            // สร้างปุ่มใหม่ตามจำนวนตัวเลือก
             for (let i = 0; i < questions[currentQuestion].choices.length; i++) {
-                buttons[i].innerText = questions[currentQuestion].choices[i];
+                const button = document.createElement('button');
+                button.classList.add('choice-btn');
+                button.innerText = questions[currentQuestion].choices[i];
+                button.onclick = () => nextQuestion(i);
+                choicesDiv.appendChild(button);
             }
         }
 
@@ -164,7 +169,7 @@
 
             document.getElementById("question").innerText = career;
             document.getElementById("question-image").src = "career.jpg";
-            document.querySelectorAll(".choice-btn").forEach(btn => btn.style.display = "none");
+            document.getElementById("choices").innerHTML = '';  // ซ่อนตัวเลือก
             document.getElementById("skills").innerHTML = skills;
         }
     </script>
