@@ -139,7 +139,9 @@
             document.getElementById("question").innerText = questions[currentQuestion].text;
             document.getElementById("question-image").src = questions[currentQuestion].image;
             const buttons = document.getElementsByClassName("choice-btn");
-            for (let i = 0; i < buttons.length; i++) {
+            
+            // ลูปอัพเดตตัวเลือกในปุ่ม
+            for (let i = 0; i < questions[currentQuestion].choices.length; i++) {
                 buttons[i].innerText = questions[currentQuestion].choices[i];
             }
         }
